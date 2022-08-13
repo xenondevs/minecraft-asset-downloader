@@ -11,14 +11,13 @@ import kotlinx.coroutines.runBlocking
 import xyz.xenondevs.downloader.extractor.AssetIndexExtractor
 import xyz.xenondevs.downloader.extractor.ClientExtractor
 import java.io.File
+import java.util.function.Predicate
 
 private const val VERSION_MANIFEST = "https://launchermeta.mojang.com/mc/game/version_manifest.json"
 
-typealias AssetFilter = (String) -> Boolean
-
 class MinecraftAssetsDownloader(private val version: String = "latest", private val outputDirectory: File, private val mode: ExtractionMode) {
     
-    val filters = ArrayList<AssetFilter>()
+    val filters = ArrayList<Predicate<String>>()
     
     private val httpClient = HttpClient(CIO) {
         install(ContentNegotiation) { gson() }

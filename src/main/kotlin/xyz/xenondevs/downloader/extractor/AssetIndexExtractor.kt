@@ -2,17 +2,17 @@ package xyz.xenondevs.downloader.extractor
 
 import com.google.gson.JsonObject
 import io.ktor.client.*
-import xyz.xenondevs.downloader.AssetFilter
 import xyz.xenondevs.downloader.util.IOUtils
 import xyz.xenondevs.downloader.util.downloadBuffered
 import java.io.File
+import java.util.function.Predicate
 
 private const val DOWNLOAD_URL = "https://resources.download.minecraft.net/"
 
 internal class AssetIndexExtractor(outputDirectory: File,
-                          private val httpClient: HttpClient,
-                          private val filters: ArrayList<AssetFilter>,
-                          private val index: JsonObject) : Extractor {
+                                   private val httpClient: HttpClient,
+                                   private val filters: ArrayList<Predicate<String>>,
+                                   private val index: JsonObject) : Extractor {
     
     private val outputDirectory = File(outputDirectory, "assets")
     private val canonicalOutput = outputDirectory.canonicalPath
@@ -20,7 +20,7 @@ internal class AssetIndexExtractor(outputDirectory: File,
     override suspend fun extract() {
         val objects = index.getAsJsonObject("objects")
         objects.keySet().forEach { name ->
-            if (filters.any { !it(name) })
+            if (!filters.all { it.test("assets/$name") })
                 return@forEach
             
             val hash = objects.get(name).asJsonObject.get("hash").asString

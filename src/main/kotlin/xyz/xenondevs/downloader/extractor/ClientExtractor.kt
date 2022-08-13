@@ -3,16 +3,16 @@ package xyz.xenondevs.downloader.extractor
 import com.google.gson.JsonObject
 import io.ktor.client.*
 import io.ktor.utils.io.core.*
-import xyz.xenondevs.downloader.AssetFilter
 import xyz.xenondevs.downloader.util.IOUtils
 import xyz.xenondevs.downloader.util.downloadBuffered
 import java.io.File
+import java.util.function.Predicate
 import java.util.zip.ZipInputStream
 
 internal class ClientExtractor(private val outputDirectory: File,
-                      private val httpClient: HttpClient,
-                      private val filters: ArrayList<AssetFilter>,
-                      clientManifest: JsonObject) : Extractor {
+                               private val httpClient: HttpClient,
+                               private val filters: ArrayList<Predicate<String>>,
+                               clientManifest: JsonObject) : Extractor {
     
     private val clientFile = File(outputDirectory, "temp-client")
     private val canonicalOutput = outputDirectory.canonicalPath
@@ -41,7 +41,7 @@ internal class ClientExtractor(private val outputDirectory: File,
                 if (!entry.name.startsWith("assets/"))
                     return@forEach
                 
-                if (filters.any { !it(entry.name) })
+                if (!filters.all { it.test(entry.name) })
                     return@forEach
                 
                 val file = File(outputDirectory, entry.name)
