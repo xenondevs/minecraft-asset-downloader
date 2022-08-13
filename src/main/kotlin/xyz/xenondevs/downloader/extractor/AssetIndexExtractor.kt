@@ -20,6 +20,9 @@ internal class AssetIndexExtractor(outputDirectory: File,
     override suspend fun extract() {
         val objects = index.getAsJsonObject("objects")
         objects.keySet().forEach { name ->
+            if (filters.any { !it(name) })
+                return@forEach
+            
             val hash = objects.get(name).asJsonObject.get("hash").asString
             val url = "$DOWNLOAD_URL${hash.take(2)}/$hash"
             val file = File(outputDirectory, name)
