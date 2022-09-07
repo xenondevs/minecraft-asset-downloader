@@ -9,10 +9,12 @@ import java.util.function.Predicate
 
 private const val DOWNLOAD_URL = "https://resources.download.minecraft.net/"
 
-internal class AssetIndexExtractor(outputDirectory: File,
-                                   private val httpClient: HttpClient,
-                                   private val filters: ArrayList<Predicate<String>>,
-                                   private val index: JsonObject) : Extractor {
+internal class AssetIndexExtractor(
+    outputDirectory: File,
+    private val httpClient: HttpClient,
+    private val filters: ArrayList<Predicate<String>>,
+    private val index: JsonObject
+) : Extractor {
     
     private val outputDirectory = File(outputDirectory, "assets")
     private val canonicalOutput = outputDirectory.canonicalPath

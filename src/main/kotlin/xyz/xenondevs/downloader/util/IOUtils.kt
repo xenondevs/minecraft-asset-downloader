@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.security.MessageDigest
 
-internal suspend fun HttpClient.downloadBuffered(url: String, file: File, hash: String, algorithm: String) {
+internal suspend fun HttpClient.downloadBuffered(url: String, file: File, hash: String? = null, algorithm: String? = null) {
     prepareGet(url).execute { response ->
         withContext(Dispatchers.IO) {
             file.parentFile.mkdirs()
@@ -26,7 +26,7 @@ internal suspend fun HttpClient.downloadBuffered(url: String, file: File, hash: 
             }
         }
     }
-    if (IOUtils.getFileHash(file, algorithm) != hash)
+    if (algorithm != null && hash != null && IOUtils.getFileHash(file, algorithm) != hash)
         throw IllegalStateException("Downloaded file hash does not match expected hash ($file)")
 }
 
