@@ -14,13 +14,15 @@ import xyz.xenondevs.downloader.extractor.ClientExtractor
 import xyz.xenondevs.downloader.extractor.GitHubExtractor
 import java.io.File
 import java.util.function.Predicate
+import java.util.logging.Logger
 
 private const val VERSION_MANIFEST = "https://launchermeta.mojang.com/mc/game/version_manifest.json"
 
 class MinecraftAssetsDownloader(
     private val version: String = "latest",
     private val outputDirectory: File,
-    private val mode: ExtractionMode
+    private val mode: ExtractionMode,
+    private val logger: Logger? = null
 ) {
     
     val filters = ArrayList<Predicate<String>>()
@@ -40,6 +42,7 @@ class MinecraftAssetsDownloader(
     
     init {
         runBlocking {
+            logger?.info("Retrieving version manifest...")
             retrieveVersionManifest()
         }
     }
@@ -63,12 +66,14 @@ class MinecraftAssetsDownloader(
     }
     
     suspend fun downloadAssets() {
+        logger?.info("Downloading minecraft assets for version $actualVersion...")
         if (mode.allowsGithub) {
             GitHubExtractor(
                 outputDirectory,
                 httpClient,
                 filters,
-                actualVersion
+                actualVersion,
+                logger
             ).extract()
         }
         if (mode.allowsClient) {
@@ -76,7 +81,8 @@ class MinecraftAssetsDownloader(
                 outputDirectory,
                 httpClient,
                 filters,
-                versionManifest.getAsJsonObject("downloads").getAsJsonObject("client")
+                versionManifest.getAsJsonObject("downloads").getAsJsonObject("client"),
+                logger
             ).extract()
         }
         if (mode.allowsAssetIndex) {
@@ -84,9 +90,11 @@ class MinecraftAssetsDownloader(
                 outputDirectory,
                 httpClient,
                 filters,
-                httpClient.get(versionManifest.getAsJsonObject("assetIndex").get("url").asString).body()
+                httpClient.get(versionManifest.getAsJsonObject("assetIndex").get("url").asString).body(),
+                logger
             ).extract()
         }
+        logger?.info("Finished downloading minecraft assets!")
     }
     
     

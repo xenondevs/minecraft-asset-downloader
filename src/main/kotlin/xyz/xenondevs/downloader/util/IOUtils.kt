@@ -3,14 +3,23 @@ package xyz.xenondevs.downloader.util
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.security.MessageDigest
 
-internal suspend fun HttpClient.downloadBuffered(url: String, file: File, hash: String? = null, algorithm: String? = null) {
+internal suspend fun HttpClient.downloadBuffered(
+    url: String,
+    file: File,
+    progressHandler: ((Long, Long) -> Unit)? = null,
+    hash: String? = null,
+    algorithm: String? = null
+) {
     prepareGet(url).execute { response ->
+        val totalLength = response.contentLength() ?: -1L
+        var totalRead = 0L
         withContext(Dispatchers.IO) {
             file.parentFile.mkdirs()
             val fos = file.outputStream()
@@ -20,9 +29,11 @@ internal suspend fun HttpClient.downloadBuffered(url: String, file: File, hash: 
                 val packet = channel.readRemaining(DEFAULT_BUFFER_SIZE.toLong())
                 while (!packet.isEmpty) {
                     val bytes = packet.readBytes()
+                    totalRead += bytes.size
                     fos.write(bytes)
                     fos.flush()
                 }
+                progressHandler?.invoke(totalLength, totalRead)
             }
         }
     }

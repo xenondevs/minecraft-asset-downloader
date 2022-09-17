@@ -6,14 +6,17 @@ import io.ktor.utils.io.core.*
 import xyz.xenondevs.downloader.util.IOUtils
 import xyz.xenondevs.downloader.util.downloadBuffered
 import java.io.File
+import java.util.*
 import java.util.function.Predicate
+import java.util.logging.Logger
 import java.util.zip.ZipInputStream
 
 internal class ClientExtractor(
     private val outputDirectory: File,
     private val httpClient: HttpClient,
     private val filters: ArrayList<Predicate<String>>,
-    clientManifest: JsonObject
+    clientManifest: JsonObject,
+    private val logger: Logger?
 ) : Extractor {
     
     private val clientFile = File(outputDirectory, "temp-client")
@@ -34,10 +37,20 @@ internal class ClientExtractor(
                 return
         }
         
-        httpClient.downloadBuffered(downloadUrl, clientFile, hash, "SHA1")
+        var lastPrint = 0.0
+        httpClient.downloadBuffered(downloadUrl, clientFile, hash = hash, algorithm = "SHA1",
+            progressHandler = if (logger != null) ({ total, current ->
+                val percentage = (current.toDouble() / total.toDouble()) * 100
+                if (percentage - lastPrint >= 5 || percentage == 100.0) {
+                    logger.info("Downloading client: ${"%.2f".format(Locale.US, percentage)}%")
+                    lastPrint = percentage
+                }
+            }) else null
+        )
     }
     
     private fun extractAssets() {
+        logger?.info("Extracting client assets...")
         ZipInputStream(clientFile.inputStream()).use { zis ->
             generateSequence(zis::getNextEntry).forEach { entry ->
                 if (!entry.name.startsWith("assets/"))
