@@ -17,8 +17,11 @@ internal suspend fun HttpClient.downloadBuffered(
     hash: String? = null,
     algorithm: String? = null
 ) {
+    var contentLength: Long = -1L
+    
     prepareGet(url).execute { response ->
-        val totalLength = response.contentLength() ?: -1L
+        response.contentLength()?.let { contentLength = it }
+        
         var totalRead = 0L
         withContext(Dispatchers.IO) {
             file.parentFile.mkdirs()
@@ -33,7 +36,7 @@ internal suspend fun HttpClient.downloadBuffered(
                     fos.write(bytes)
                     fos.flush()
                 }
-                progressHandler?.invoke(totalLength, totalRead)
+                progressHandler?.invoke(contentLength, totalRead)
             }
         }
     }

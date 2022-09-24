@@ -6,11 +6,11 @@
 
     <groupId>xyz.xenondevs</groupId>
     <artifactId>minecraft-asset-downloader</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
 
     <properties>
         <kotlin.version>1.7.10</kotlin.version>
-        <ktor.version>2.1.0</ktor.version>
+        <ktor.version>2.1.1</ktor.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>

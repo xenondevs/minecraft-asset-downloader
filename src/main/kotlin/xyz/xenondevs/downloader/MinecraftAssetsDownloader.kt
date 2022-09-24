@@ -94,7 +94,7 @@ class MinecraftAssetsDownloader(
                 logger
             ).extract()
         }
-        logger?.info("Finished downloading minecraft assets!")
+        logger?.info("Finished downloading Minecraft assets!")
     }
     
     

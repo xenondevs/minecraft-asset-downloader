@@ -27,11 +27,24 @@ class GitHubExtractor(
         
         var lastPrint = 0.0
         httpClient.downloadBuffered(downloadUrl, branchFile,
-            progressHandler = if (logger != null) ({ _, current -> // GitHub doesn't provide a content length. So we print every 10 mb
-                val currentMb = current.toDouble() / 1_000_000
-                if (currentMb - lastPrint >= 10) {
-                    logger.info("Downloading Minecraft assets repository: ${"%.2f".format(Locale.US, currentMb)} MB")
-                    lastPrint = currentMb
+            progressHandler = if (logger != null) ({ total, current -> // GitHub doesn't provide a content length. So we print every 10 mb
+                if (total <= 0) {
+                    val currentMb = current.toDouble() / 1_000_000
+                    if (currentMb - lastPrint >= 10) {
+                        logger.info("Downloading Minecraft assets repository: ${"%.2f".format(Locale.US, currentMb)} MB")
+                        lastPrint = currentMb
+                    }
+                } else {
+                    val currentPercentage = current.toDouble() / total.toDouble()
+                    if (currentPercentage - lastPrint >= .01) {
+                        logger.info(
+                            "Downloading Minecraft assets repository: ${"%.0f".format(Locale.US, currentPercentage * 100)}% (" +
+                                "${"%.2f".format(Locale.US, current / 1_000_000.0)} MB / " +
+                                "${"%.2f".format(Locale.US, total / 1_000_000.0)} MB" +
+                                ")"
+                        )
+                        lastPrint = currentPercentage
+                    }
                 }
             }) else null)
         extractAssets()
