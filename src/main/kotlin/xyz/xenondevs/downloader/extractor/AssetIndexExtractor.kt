@@ -49,7 +49,7 @@ internal class AssetIndexExtractor(
                     continue
                 }
                 failCount = 0
-                if (++count % logStep == 0 || count == total) println("Downloaded $count/$total needed assets from asset index.")
+                if (++count % logStep == 0 || count == total) logger?.info("Downloaded $count/$total needed assets from asset index.")
             }
             toDownload.removeAt(0)
         }
