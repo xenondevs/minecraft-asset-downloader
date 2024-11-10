@@ -1,20 +1,20 @@
 package xyz.xenondevs.downloader
 
 import com.google.gson.JsonObject
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.serialization.gson.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
+import io.ktor.serialization.gson.gson
 import kotlinx.coroutines.runBlocking
+import org.slf4j.Logger
 import xyz.xenondevs.downloader.extractor.AssetIndexExtractor
 import xyz.xenondevs.downloader.extractor.ClientExtractor
 import xyz.xenondevs.downloader.extractor.GitHubExtractor
 import java.io.File
 import java.util.function.Predicate
-import java.util.logging.Logger
 
 private const val VERSION_MANIFEST = "https://launchermeta.mojang.com/mc/game/version_manifest.json"
 
@@ -32,10 +32,9 @@ class MinecraftAssetsDownloader(
         expectSuccess = false
         install(HttpTimeout) {
             connectTimeoutMillis = 10 * 1000
-            requestTimeoutMillis = HttpTimeout.INFINITE_TIMEOUT_MS
+            requestTimeoutMillis = Long.MAX_VALUE
         }
     }
-    private val tempClientFile = File(outputDirectory, "temp-client")
     
     private lateinit var actualVersion: String
     private lateinit var versionManifest: JsonObject

@@ -3,12 +3,12 @@ package xyz.xenondevs.downloader.extractor
 import com.google.gson.JsonObject
 import io.ktor.client.*
 import io.ktor.utils.io.core.*
+import org.slf4j.Logger
 import xyz.xenondevs.downloader.util.IOUtils
 import xyz.xenondevs.downloader.util.downloadBuffered
 import java.io.File
 import java.util.*
 import java.util.function.Predicate
-import java.util.logging.Logger
 import java.util.zip.ZipInputStream
 
 internal class ClientExtractor(

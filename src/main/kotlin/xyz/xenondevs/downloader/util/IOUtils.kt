@@ -5,8 +5,10 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.utils.io.core.*
+import io.ktor.utils.io.readRemaining
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.io.readByteArray
 import java.io.File
 import java.security.MessageDigest
 
@@ -30,8 +32,8 @@ internal suspend fun HttpClient.downloadBuffered(
             val channel = response.bodyAsChannel()
             while (!channel.isClosedForRead) {
                 val packet = channel.readRemaining(DEFAULT_BUFFER_SIZE.toLong())
-                while (!packet.isEmpty) {
-                    val bytes = packet.readBytes()
+                while (!packet.endOfInput) {
+                    val bytes = packet.readByteArray()
                     totalRead += bytes.size
                     fos.write(bytes)
                     fos.flush()

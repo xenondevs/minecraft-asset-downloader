@@ -2,12 +2,12 @@ package xyz.xenondevs.downloader.extractor
 
 import com.google.gson.JsonObject
 import io.ktor.client.*
+import org.slf4j.Logger
 import xyz.xenondevs.downloader.util.IOUtils
 import xyz.xenondevs.downloader.util.downloadBuffered
 import java.io.File
 import java.net.ConnectException
 import java.util.function.Predicate
-import java.util.logging.Logger
 
 private const val DOWNLOAD_URL = "https://resources.download.minecraft.net/"
 

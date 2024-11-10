@@ -2,11 +2,11 @@ package xyz.xenondevs.downloader.extractor
 
 import io.ktor.client.*
 import io.ktor.utils.io.core.*
+import org.slf4j.Logger
 import xyz.xenondevs.downloader.util.downloadBuffered
 import java.io.File
 import java.util.*
 import java.util.function.Predicate
-import java.util.logging.Logger
 import java.util.zip.ZipInputStream
 
 private const val GITHUB_FORMAT = "https://github.com/InventivetalentDev/minecraft-assets/archive/refs/heads/%s.zip"
